@@ -4,7 +4,7 @@ import torch
 from transformers import pipeline
 import streamlit as st
 import time
-from config import MODEL_NAME
+from config import MODEL_NAME,DEFAULT_SYSTEM_PROMPT
 from huggingface_hub import login
 
 # モデルをキャッシュして再利用
@@ -31,15 +31,23 @@ def load_model():
         st.error("GPUメモリ不足の可能性があります。不要なプロセスを終了するか、より小さいモデルの使用を検討してください。")
         return None
 
-def generate_response(pipe, user_question):
+def generate_response(pipe, user_question,custom_prompt=None):
     """LLMを使用して質問に対する回答を生成する"""
     if pipe is None:
         return "モデルがロードされていないため、回答を生成できません。", 0
 
     try:
         start_time = time.time()
+
+        #　カスタムプロンプト
+        if custom_prompt:
+            # カスタムプロンプトと質問を区切る
+            full_prompt = f"{custom_prompt}\n\n質問: {user_question}"
+        else:
+            full_prompt = user_question
+
         messages = [
-            {"role": "user", "content": user_question},
+            {"role": "user", "content": full_prompt},
         ]
         # max_new_tokensを調整可能にする（例）
         outputs = pipe(messages, max_new_tokens=512, do_sample=True, temperature=0.7, top_p=0.9)
