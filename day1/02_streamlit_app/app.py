@@ -7,7 +7,7 @@ import metrics              # 評価指標モジュール
 import data                 # データモジュール
 import torch
 from transformers import pipeline
-from config import MODEL_NAME
+from config import MODEL_NAME, DEFAULT_SYSTEM_PROMPT
 from huggingface_hub import HfFolder
 
 # --- アプリケーション設定 ---
@@ -22,6 +22,10 @@ database.init_db()
 
 # データベースが空ならサンプルデータを投入
 data.ensure_initial_data()
+
+# カスタムプロンプトの初期化
+if 'custom_prompt' not in st.session_state:
+    st.session_state.custom_prompt = DEFAULT_SYSTEM_PROMPT
 
 # LLMモデルのロード（キャッシュを利用）
 # モデルをキャッシュして再利用
@@ -78,4 +82,4 @@ elif st.session_state.page == "サンプルデータ管理":
 
 # --- フッターなど（任意） ---
 st.sidebar.markdown("---")
-st.sidebar.info("開発者: [Your Name]")
+st.sidebar.info("編集者: [Kamei722]")

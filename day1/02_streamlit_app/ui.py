@@ -9,6 +9,19 @@ from metrics import get_metrics_descriptions
 
 # --- チャットページのUI ---
 def display_chat_page(pipe):
+
+    if "custom_prompt" not in st.session_state:
+        st.session_state.custom_prompt = "あなたは役立つAIアシスタントです。質問に丁寧に回答してください。"
+      
+    st.sidebar.subheader("回答の方針設定")
+    custom_prompt = st.sidebar.text_area(
+        "AIへの指示",
+        value=st.session_state.custom_prompt,
+        height=150,
+    )
+
+    st.session_state.custom_prompt = custom_prompt
+    
     """チャットページのUIを表示する"""
     st.subheader("質問を入力してください")
     user_question = st.text_area("質問", key="question_input", height=100, value=st.session_state.get("current_question", ""))
@@ -31,7 +44,7 @@ def display_chat_page(pipe):
         st.session_state.feedback_given = False # フィードバック状態もリセット
 
         with st.spinner("モデルが回答を生成中..."):
-            answer, response_time = generate_response(pipe, user_question)
+            answer, response_time = generate_response(pipe, user_question,st.session_state.custom_prompt)
             st.session_state.current_answer = answer
             st.session_state.response_time = response_time
             # ここでrerunすると回答とフィードバックが一度に表示される
@@ -81,7 +94,8 @@ def display_feedback_form():
                 combined_feedback,
                 correct_answer,
                 is_correct,
-                st.session_state.response_time
+                st.session_state.response_time,
+                st.session_state.custom_prompt
             )
             st.session_state.feedback_given = True
             st.success("フィードバックが保存されました！")
