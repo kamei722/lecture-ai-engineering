@@ -122,7 +122,7 @@ def test_model_accuracy(train_model):
 
 
 def test_model_inference_time(train_model):
-    """モデルの推論時間を複数回計測し、統計情報を表示""" # docstringを修正
+    """モデルの推論時間を複数回計測し、統計情報を表示"""  # docstringを修正
     model, X_test, _ = train_model
 
     num_runs = 20  # 推論を行う回数 ★★★ ここで回数を指定 ★★★
@@ -130,9 +130,9 @@ def test_model_inference_time(train_model):
     inference_times = []
     # print(f"\n--- 推論時間計測開始 ({num_runs}回実行) ---") # シンプルにするためコメントアウト
 
-    for _ in range(num_runs): # ループ変数 i は使わないので _ に
+    for _ in range(num_runs):  # ループ変数 i は使わないので _ に
         start_time = time.time()
-        model.predict(X_test) # X_test全体で推論
+        model.predict(X_test)  # X_test全体で推論
         end_time = time.time()
         inference_times.append(end_time - start_time)
 
@@ -142,7 +142,7 @@ def test_model_inference_time(train_model):
     mean_time = s_inference_times.mean()
     max_time = s_inference_times.max()
     # 分散と標準偏差 (ddof=0 は観測データそのもののばらつきを見る場合)
-    variance_time = s_inference_times.var(ddof=0) 
+    variance_time = s_inference_times.var(ddof=0)
     std_dev_time = s_inference_times.std(ddof=0)
 
     # 結果の表示 (pytest -s オプションで表示される)
@@ -154,15 +154,16 @@ def test_model_inference_time(train_model):
 
     # 検証用の閾値を設定
     MAX_AVG_TIME_EXPECTED = 0.015  # 平均推論時間の許容上限
-    MAX_PEAK_TIME_EXPECTED = 0.025 # 最大推論時間の許容上限
+    MAX_PEAK_TIME_EXPECTED = 0.025  # 最大推論時間の許容上限
 
     # 平均と最大の推論時間が閾値を超えないことを確認
-    assert mean_time < MAX_AVG_TIME_EXPECTED, \
-        f"平均推論時間 ({mean_time:.6f}秒) が期待値 ({MAX_AVG_TIME_EXPECTED}秒) を超えました。"
+    assert (
+        mean_time < MAX_AVG_TIME_EXPECTED
+    ), f"平均推論時間 ({mean_time:.6f}秒) が期待値 ({MAX_AVG_TIME_EXPECTED}秒) を超えました。"
 
-    assert max_time < MAX_PEAK_TIME_EXPECTED, \
-        f"最大推論時間 ({max_time:.6f}秒) が期待値 ({MAX_PEAK_TIME_EXPECTED}秒) を超えました。"
-
+    assert (
+        max_time < MAX_PEAK_TIME_EXPECTED
+    ), f"最大推論時間 ({max_time:.6f}秒) が期待値 ({MAX_PEAK_TIME_EXPECTED}秒) を超えました。"
 
 
 def test_model_reproducibility(sample_data, preprocessor):
