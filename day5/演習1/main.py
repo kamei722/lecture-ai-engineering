@@ -121,3 +121,6 @@ if __name__ == "__main__":
     with open(model_path, "wb") as f:
         pickle.dump(model, f)
     print(f"モデルを {model_path} に保存しました")
+
+
+# テストテスト

@@ -122,18 +122,47 @@ def test_model_accuracy(train_model):
 
 
 def test_model_inference_time(train_model):
-    """モデルの推論時間を検証"""
+    """モデルの推論時間を複数回計測し、統計情報を表示""" # docstringを修正
     model, X_test, _ = train_model
 
-    # 推論時間の計測
-    start_time = time.time()
-    model.predict(X_test)
-    end_time = time.time()
+    num_runs = 20  # 推論を行う回数 ★★★ ここで回数を指定 ★★★
 
-    inference_time = end_time - start_time
+    inference_times = []
+    # print(f"\n--- 推論時間計測開始 ({num_runs}回実行) ---") # シンプルにするためコメントアウト
 
-    # 推論時間が1秒未満であることを確認
-    assert inference_time < 1.0, f"推論時間が長すぎます: {inference_time}秒"
+    for _ in range(num_runs): # ループ変数 i は使わないので _ に
+        start_time = time.time()
+        model.predict(X_test) # X_test全体で推論
+        end_time = time.time()
+        inference_times.append(end_time - start_time)
+
+    # Pandas Series を使って統計量を計算
+    s_inference_times = pd.Series(inference_times)
+
+    mean_time = s_inference_times.mean()
+    max_time = s_inference_times.max()
+    # 分散と標準偏差 (ddof=0 は観測データそのもののばらつきを見る場合)
+    variance_time = s_inference_times.var(ddof=0) 
+    std_dev_time = s_inference_times.std(ddof=0)
+
+    # 結果の表示 (pytest -s オプションで表示される)
+    print(f"\n--- 推論時間統計 ({num_runs}回実行) ---")
+    print(f"  平均: {mean_time:.6f} 秒")
+    print(f"  最大: {max_time:.6f} 秒")
+    print(f"  分散: {variance_time:.8f} (秒^2)")
+    print(f"  標準偏差: {std_dev_time:.6f} 秒")
+
+    # 検証用の閾値を設定
+    MAX_AVG_TIME_EXPECTED = 0.015  # 平均推論時間の許容上限
+    MAX_PEAK_TIME_EXPECTED = 0.025 # 最大推論時間の許容上限
+
+    # 平均と最大の推論時間が閾値を超えないことを確認
+    assert mean_time < MAX_AVG_TIME_EXPECTED, \
+        f"平均推論時間 ({mean_time:.6f}秒) が期待値 ({MAX_AVG_TIME_EXPECTED}秒) を超えました。"
+
+    assert max_time < MAX_PEAK_TIME_EXPECTED, \
+        f"最大推論時間 ({max_time:.6f}秒) が期待値 ({MAX_PEAK_TIME_EXPECTED}秒) を超えました。"
+
 
 
 def test_model_reproducibility(sample_data, preprocessor):
